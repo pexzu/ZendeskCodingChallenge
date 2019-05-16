@@ -33,12 +33,20 @@ function searchZendesk() {
 }
 
 function viewSearchField() {
-  searchOptions.forEach(item => {
-    console.log('\nSearch ' + item + ' with \n');
-    const value = getAvailableSearchFields(
+  let searchableFields: any = [];
+  searchOptions.forEach(async item => {
+    const value = await getAvailableSearchFields(
       path.join(__dirname, '../asset/json/' + item.toLowerCase() + '.json')
-    );
-    console.log(value);
+    ).then(result => {
+      searchableFields = result;
+    });
+    if (searchableFields) {
+      console.log('\nSearch ' + item + ' with \n');
+      searchableFields.map((item: any) => {
+        console.log(item);
+      });
+    }
+    // console.log(value);
   });
 }
 
