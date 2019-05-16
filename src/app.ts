@@ -1,4 +1,5 @@
 import { getAvailableSearchFields } from './data';
+var path = require('path');
 
 const readlineSync = require('readline-sync');
 
@@ -34,9 +35,10 @@ function searchZendesk() {
 function viewSearchField() {
   searchOptions.forEach(item => {
     console.log('\nSearch ' + item + ' with \n');
-    getAvailableSearchFields('../asset/json/' + item.toLowerCase() + '.json').map(item =>
-      console.log(item)
+    const value = getAvailableSearchFields(
+      path.join(__dirname, '../asset/json/' + item.toLowerCase() + '.json')
     );
+    console.log(value);
   });
 }
 

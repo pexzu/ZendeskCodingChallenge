@@ -1,9 +1,13 @@
-const { parser } = require('stream-json/Parser');
+const { parser } = require('stream-json');
 const fs = require('fs');
-
-const pipeline = fs.createReadStream(__dirname + '/asset/json/users.json').pipe(parser());
+const Asm = require('stream-json/Assembler');
 
 export function getAvailableSearchFields(path: string) {
-  console.log(pipeline);
-  return Object.keys(require(path)[0]); //assuming the object structure is same
+  const pipeline = fs.createReadStream(path).pipe(parser());
+  const asm = Asm.connectTo(pipeline);
+  asm.on('done', (asm: any) => {
+    console.log(Object.keys(asm.current[0]));
+    return Object.keys(asm.current[0]);
+  });
+  //   return Object.keys(require(path)[0]); //assuming the object structure is same
 }
