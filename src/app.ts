@@ -1,4 +1,5 @@
 import { getAvailableSearchFields, getAllInfo } from './data';
+import { displayAlertContent } from './utils/utilityMethods';
 import process from 'process';
 import path from 'path';
 import readlineSync from 'readline-sync';
@@ -42,14 +43,16 @@ const searchZendesk = async () => {
           path.join(__dirname, '../asset/json/' + searchOptions[index].toLowerCase() + '.json')
         )
           .then((result: any) => {
-            result.map((item: any) => {
-              console.log(
-                '\n' + columnify(item, { columns: ['Terms', 'Values'], columnSplitter: ' : ' })
-              );
-            });
+            result && result.length > 0
+              ? result.map((item: any) => {
+                  console.log(
+                    '\n' + columnify(item, { columns: ['Terms', 'Values'], columnSplitter: ' : ' })
+                  );
+                })
+              : displayAlertContent('\n No results found');
           })
           .then(() => goToHome()))
-      : console.log('\n The field value entered is not valid search field');
+      : (displayAlertContent('\n The value entered is not valid search field'), searchZendesk());
   });
 };
 
