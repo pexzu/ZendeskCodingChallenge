@@ -13,7 +13,7 @@ export const getAvailableSearchFields = (path: string) => {
   const asm = getAssembler(path);
   return new Promise((resolve, reject) => {
     asm.on('done', (asm: any) => {
-      const value: Array<string> = Object.keys(asm.current[0]);
+      const value: Array<string> = asm.current[0];
       if (value) {
         resolve(value);
       }

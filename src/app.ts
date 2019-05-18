@@ -7,24 +7,22 @@ import columnify from 'columnify';
 const primaryOptions = ['Search Zendesk', 'View a list of searchable fields'];
 const searchOptions = ['Users', 'Tickets', 'Organizations'];
 
-console.log('\nSelect search options:');
-const index = readlineSync.keyInSelect(primaryOptions, 'Please select your option', {
-  cancel: 'Quit',
-});
-index >= 0 ? console.log('\nYou have selected to ' + primaryOptions[index]) : process.exit();
+const goToHome = () => {
+  const isGoingHome = readlineSync
+    .question('\n Do you wanna go home (y/n):')
+    .toLowerCase()
+    .trim();
+  if (isGoingHome === 'y') {
+    showInitialSearch();
+  } else if (isGoingHome === 'n') {
+    quitApplication();
+  } else {
+    invalidOperation();
+    return goToHome();
+  }
+};
 
-switch (index) {
-  case 0:
-    searchZendesk();
-    break;
-  case 1:
-    viewSearchField();
-    break;
-  default:
-    defaultOperation();
-}
-
-async function searchZendesk() {
+const searchZendesk = async () => {
   console.log('\nPlease select on which the search should be based on:');
   const index = readlineSync.keyInSelect(searchOptions, 'Please select your option', {
     cancel: 'Quit',
@@ -34,47 +32,65 @@ async function searchZendesk() {
   let searchableFields: any = [];
   await getAvailableSearchFields(
     path.join(__dirname, '../asset/json/' + searchOptions[index].toLowerCase() + '.json')
-  ).then(result => {
-    searchableFields = result;
-
+  ).then((result: any) => {
     let searchValue = '';
-    let info: any = [];
-
-    searchableFields.includes(searchTerm.trim())
+    Object.keys(result).includes(searchTerm.trim())
       ? ((searchValue = readlineSync.question('Please enter the search value: ')),
         getAllInfo(
           searchTerm,
           searchValue,
           path.join(__dirname, '../asset/json/' + searchOptions[index].toLowerCase() + '.json')
-        ).then(result => {
-          info = result;
-          info.map((item: any) => {
-            console.log(
-              '\n' + columnify(item, { columns: ['Terms', 'Values'], columnSplitter: ' : ' })
-            );
-          });
-        }))
+        )
+          .then((result: any) => {
+            result.map((item: any) => {
+              console.log(
+                '\n' + columnify(item, { columns: ['Terms', 'Values'], columnSplitter: ' : ' })
+              );
+            });
+          })
+          .then(() => goToHome()))
       : console.log('\n The field value entered is not valid search field');
   });
-}
+};
 
-function viewSearchField() {
+const viewSearchField = () => {
   let searchableFields: any = [];
   searchOptions.forEach(async item => {
     await getAvailableSearchFields(
       path.join(__dirname, '../asset/json/' + item.toLowerCase() + '.json')
-    ).then(result => {
-      searchableFields = result;
-    });
-    if (searchableFields) {
-      console.log('\nSearch ' + item + ' with \n');
-      searchableFields.map((item: any) => {
-        console.log(item);
-      });
-    }
+    )
+      .then((result: any) => {
+        console.log('\n' + columnify(result, { columns: ['Search ' + item + ' with '] }));
+      })
+      .then(() => goToHome());
   });
-}
+};
 
-function defaultOperation() {
-  console.log('\n Please select an appropriate operation');
-}
+const invalidOperation = () => {
+  console.log('\n Please select an appropriate value');
+};
+
+const showInitialSearch = () => {
+  console.log('\nSelect search options:');
+  const index = readlineSync.keyInSelect(primaryOptions, 'Please select your option', {
+    cancel: 'Quit',
+  });
+  index >= 0 ? console.log('\nYou have selected to ' + primaryOptions[index]) : quitApplication();
+
+  switch (index) {
+    case 0:
+      searchZendesk();
+      break;
+    case 1:
+      viewSearchField();
+      break;
+    default:
+      invalidOperation();
+  }
+};
+
+const quitApplication = () => {
+  process.exit();
+};
+
+showInitialSearch();
