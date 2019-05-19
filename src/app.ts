@@ -8,7 +8,7 @@ import columnify from 'columnify';
 const primaryOptions = ['Search Zendesk', 'View a list of searchable fields'];
 const searchOptions = ['Users', 'Tickets', 'Organizations'];
 
-const goToHome = () => {
+const goToHome = (defaultFunction: Function) => {
   const isGoingHome = readlineSync
     .question('\n Do you wanna go home (y/n):')
     .toLowerCase()
@@ -16,18 +16,19 @@ const goToHome = () => {
   if (isGoingHome === 'y') {
     showInitialSearch();
   } else if (isGoingHome === 'n') {
-    quitApplication();
+    defaultFunction();
   } else {
     invalidOperation();
-    return goToHome();
+    return goToHome(defaultFunction);
   }
 };
 
 const searchZendesk = async () => {
   console.log('\nPlease select on which the search should be based on:');
   const index = readlineSync.keyInSelect(searchOptions, 'Please select your option', {
-    cancel: 'Quit',
+    cancel: 'Go Back',
   });
+  index >= 0 ? console.log('\nYou have selected to ' + primaryOptions[index]) : showInitialSearch();
   console.log('\nYou have selected ' + searchOptions[index]);
   const searchTerm = readlineSync.question('Please enter the search term: ');
   let searchableFields: any = [];
@@ -46,12 +47,12 @@ const searchZendesk = async () => {
             result && result.length > 0
               ? result.map((item: any) => {
                   console.log(
-                    '\n' + columnify(item, { columns: ['Terms', 'Values'], columnSplitter: ' : ' })
+                    '\n' + columnify(item, { columns: ['Terms', 'Values'], columnSplitter: ' | ' })
                   );
                 })
               : displayAlertContent('\n No results found');
           })
-          .then(() => goToHome()))
+          .then(() => goToHome(searchZendesk)))
       : (displayAlertContent('\n The value entered is not valid search field'), searchZendesk());
   });
 };
@@ -65,12 +66,8 @@ const viewSearchField = () => {
       .then((result: any) => {
         console.log('\n' + columnify(result, { columns: ['Search ' + item + ' with '] }));
       })
-      .then(() => goToHome());
+      .then(() => goToHome(quitApplication));
   });
-};
-
-const invalidOperation = () => {
-  console.log('\n Please select an appropriate value');
 };
 
 const showInitialSearch = () => {
@@ -90,6 +87,10 @@ const showInitialSearch = () => {
     default:
       invalidOperation();
   }
+};
+
+const invalidOperation = () => {
+  console.log('\n Please select an appropriate value');
 };
 
 const quitApplication = () => {
