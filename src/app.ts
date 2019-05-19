@@ -36,8 +36,7 @@ const searchZendesk = async () => {
   const index = readlineSync.keyInSelect(searchOptions, 'Please select your option', {
     cancel: 'Go Back',
   });
-  index >= 0 ? console.log('\nYou have selected to ' + primaryOptions[index]) : showInitialSearch();
-  console.log('\nYou have selected ' + searchOptions[index]);
+  index >= 0 ? console.log('\nYou have selected ' + searchOptions[index]) : showInitialSearch();
   const searchTerm = readlineSync.question('Please enter the search term: ');
   await getAvailableSearchFields(
     path.join(__dirname, '../asset/json/' + searchOptions[index].toLowerCase() + '.json')
