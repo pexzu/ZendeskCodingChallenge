@@ -8,22 +8,30 @@ import columnify from 'columnify';
 const primaryOptions = ['Search Zendesk', 'View a list of searchable fields'];
 const searchOptions = ['Users', 'Tickets', 'Organizations'];
 
-const goToHome = (defaultFunction: Function) => {
-  const isGoingHome = readlineSync
-    .question('\n Do you wanna go home (y/n):')
-    .toLowerCase()
-    .trim();
-  if (isGoingHome === 'y') {
-    showInitialSearch();
-  } else if (isGoingHome === 'n') {
-    defaultFunction();
-  } else {
-    invalidOperation();
-    return goToHome(defaultFunction);
+const showInitialSearch = () => {
+  console.log('\nSelect search options:');
+  const index = readlineSync.keyInSelect(primaryOptions, 'Please select your option', {
+    cancel: 'Quit',
+  });
+  index === undefined && (invalidOperation(), showInitialSearch());
+  index >= 0 ? console.log('\nYou have selected to ' + primaryOptions[index]) : quitApplication();
+
+  switch (index) {
+    case 0:
+      searchZendesk();
+      break;
+    case 1:
+      viewSearchField();
+      break;
+    default:
+      invalidOperation();
   }
 };
 
 const searchZendesk = async () => {
+  let searchableFields: any = [];
+  let searchValue = '';
+
   console.log('\nPlease select on which the search should be based on:');
   const index = readlineSync.keyInSelect(searchOptions, 'Please select your option', {
     cancel: 'Go Back',
@@ -31,14 +39,14 @@ const searchZendesk = async () => {
   index >= 0 ? console.log('\nYou have selected to ' + primaryOptions[index]) : showInitialSearch();
   console.log('\nYou have selected ' + searchOptions[index]);
   const searchTerm = readlineSync.question('Please enter the search term: ');
-  let searchableFields: any = [];
   await getAvailableSearchFields(
     path.join(__dirname, '../asset/json/' + searchOptions[index].toLowerCase() + '.json')
-  ).then((result: any) => {
-    let searchValue = '';
+  ).then(async (result: any) => {
     Object.keys(result).includes(searchTerm.trim())
-      ? ((searchValue = readlineSync.question('Please enter the search value: ')),
-        getAllInfo(
+      ? ((searchValue = readlineSync.question(
+          'Please enter the search value (if its a collection of item, just enter one value): '
+        )),
+        await getAllInfo(
           searchTerm,
           searchValue,
           path.join(__dirname, '../asset/json/' + searchOptions[index].toLowerCase() + '.json')
@@ -57,44 +65,41 @@ const searchZendesk = async () => {
   });
 };
 
-const viewSearchField = () => {
+const viewSearchField = async () => {
   let searchableFields: any = [];
-  searchOptions.forEach(async item => {
-    await getAvailableSearchFields(
+  const promises = searchOptions.map(item =>
+    getAvailableSearchFields(
       path.join(__dirname, '../asset/json/' + item.toLowerCase() + '.json')
-    )
-      .then((result: any) => {
-        console.log('\n' + columnify(result, { columns: ['Search ' + item + ' with '] }));
-      })
-      .then(() => goToHome(quitApplication));
-  });
+    ).then((result: any) => {
+      console.log('\n' + columnify(result, { columns: ['Search ' + item + ' with '] }));
+    })
+  );
+  await Promise.all(promises);
+  goToHome(quitApplication);
 };
 
-const showInitialSearch = () => {
-  console.log('\nSelect search options:');
-  const index = readlineSync.keyInSelect(primaryOptions, 'Please select your option', {
-    cancel: 'Quit',
-  });
-  index >= 0 ? console.log('\nYou have selected to ' + primaryOptions[index]) : quitApplication();
+const quitApplication = () => {
+  console.log('\nQuitting Application...');
+  process.exit();
+};
 
-  switch (index) {
-    case 0:
-      searchZendesk();
-      break;
-    case 1:
-      viewSearchField();
-      break;
-    default:
-      invalidOperation();
+const goToHome = (defaultFunction: Function) => {
+  const isGoingHome = readlineSync
+    .question('\nDo you wanna go home (y/n): ')
+    .toLowerCase()
+    .trim();
+  if (isGoingHome === 'y') {
+    showInitialSearch();
+  } else if (isGoingHome === 'n') {
+    defaultFunction();
+  } else {
+    invalidOperation();
+    return goToHome(defaultFunction);
   }
 };
 
 const invalidOperation = () => {
-  console.log('\n Please select an appropriate value');
-};
-
-const quitApplication = () => {
-  process.exit();
+  displayAlertContent('\nPlease select an appropriate value');
 };
 
 showInitialSearch();
