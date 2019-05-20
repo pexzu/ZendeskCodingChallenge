@@ -1,5 +1,5 @@
-import { getAvailableSearchFields, getAllInfo } from './data';
-import { consoleMessages } from './utils/utilityMethods';
+import { getAvailableSearchFields, getAllInfo } from '../data/data';
+import { consoleMessages } from '../utils/utilityMethods';
 import process from 'process';
 import path from 'path';
 import readlineSync from 'readline-sync';
@@ -45,7 +45,7 @@ const searchZendesk = async () => {
   const searchTerm = readlineSync.question('\nPlease enter the search term: ');
 
   await getAvailableSearchFields(
-    path.join(__dirname, '../asset/json/' + searchOptions[index].toLowerCase() + '.json')
+    path.join(__dirname, '../../asset/json/' + searchOptions[index].toLowerCase() + '.json')
   ).then(async (result: {}) => {
     Object.keys(result).includes(searchTerm.trim())
       ? ((searchValue = readlineSync.question(
@@ -54,7 +54,7 @@ const searchZendesk = async () => {
         await getAllInfo(
           searchTerm,
           searchValue,
-          path.join(__dirname, '../asset/json/' + searchOptions[index].toLowerCase() + '.json')
+          path.join(__dirname, '../../asset/json/' + searchOptions[index].toLowerCase() + '.json')
         ).then((result: any) => {
           result && result.length > 0
             ? result.map((item: any) => {
@@ -63,7 +63,7 @@ const searchZendesk = async () => {
             : consoleMessages.alertMessage('\n No results found');
         }),
         goToHome(searchZendesk))
-      : (consoleMessages.alertMessage('\n The value entered is not valid search field'),
+      : (consoleMessages.alertMessage('\nThe value entered is not valid search field'),
         searchZendesk());
   });
 };
@@ -73,7 +73,7 @@ const viewSearchField = async () => {
 
   for (const item of searchOptions) {
     await getAvailableSearchFields(
-      path.join(__dirname, '../asset/json/' + item.toLowerCase() + '.json')
+      path.join(__dirname, '../../asset/json/' + item.toLowerCase() + '.json')
     ).then((result: any) => {
       consoleMessages.alignMessageContent(result, ['Search ' + item + ' with ']);
     });

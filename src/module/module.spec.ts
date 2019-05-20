@@ -1,6 +1,6 @@
-import { hello, invalidOperation } from './module';
+import { invalidOperation } from './module';
 
-it('console.log the text "hello"', () => {
+it('console.log invalid operation', () => {
   console.log = jest.fn();
   invalidOperation();
   expect(console.log).toHaveBeenCalledWith(

@@ -1,3 +1,3 @@
-import { showInitialSearch } from './module';
+import { showInitialSearch } from './module/module';
 
 showInitialSearch();
