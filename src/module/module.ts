@@ -50,24 +50,27 @@ const searchZendesk = async () => {
   ]);
   const searchTerm = readlineSync.question('\nPlease enter the search term: ');
 
-  Object.keys(availableSearchTerms).includes(searchTerm.trim())
-    ? ((searchValue = readlineSync.question(
-        'Please enter the search value (if its a collection of item, just enter one value): '
-      )),
+  if (Object.keys(availableSearchTerms).includes(searchTerm.trim())) {
+    (searchValue = readlineSync.question(
+      'Please enter the search value (if its a collection of item, just enter one value): '
+    )),
       await getAllInfo(
         searchTerm,
         searchValue,
         path.join(__dirname, '../../asset/json/' + searchOptions[index].toLowerCase() + '.json')
       ).then((result: any) => {
-        result && result.length > 0
-          ? result.map((item: any) => {
-              consoleMessages.alignMessageContent(item, ['Terms', 'Values']);
-            })
-          : consoleMessages.alertMessage('\n No results found');
+        if (result && result.length > 0) {
+          result.map((item: any) => {
+            consoleMessages.alignMessageContent(item, ['Terms', 'Values']);
+          });
+        } else {
+          consoleMessages.alertMessage('\n No results found');
+        }
       }),
-      goToHome(searchZendesk))
-    : (consoleMessages.alertMessage('\nThe value entered is not valid search field'),
-      searchZendesk());
+      goToHome(searchZendesk);
+  } else {
+    consoleMessages.alertMessage('\nThe value entered is not valid search field'), searchZendesk();
+  }
 };
 
 const viewSearchField = async () => {
