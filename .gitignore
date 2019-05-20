@@ -1,0 +1,13 @@
+build
+build-back-end
+node_modules
+coverage
+npm-debug.log
+core
+reports
+screenshots
+cSpell.json
+.env
+yarn-error.log
+.vs/
+*.cmd
