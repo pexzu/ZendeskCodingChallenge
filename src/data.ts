@@ -11,24 +11,18 @@ const getAssembler = async (path: string) => {
 
 export const getAvailableSearchFields = async (path: string) => {
   const asm = await getAssembler(path);
+  let value: {} = {};
   return new Promise((resolve, reject) => {
     asm.on('done', (asm: any) => {
       const value: Array<string> = asm.current[0];
-      if (value) {
-        resolve(value);
-      }
+      value && resolve(value);
     });
-  })
-    .then(value => {
-      return value;
-    })
-    .catch(reason => {
-      console.log(reason);
-    });
+  });
 };
 
 export const getAllInfo = async (searchTerm: string, searchValue: string, path: string) => {
   const asm = await getAssembler(path);
+  const info: {} = {};
   return new Promise((resolve, reject) => {
     asm.on('done', (asm: any) => {
       const info: Array<string> = asm.current.filter((item: any) =>
@@ -46,15 +40,7 @@ export const getAllInfo = async (searchTerm: string, searchValue: string, path: 
               .toUpperCase()
               .trim() === searchValue.toUpperCase().trim()
       );
-      if (info) {
-        resolve(info);
-      }
+      info && resolve(info);
     });
-  })
-    .then(info => {
-      return info;
-    })
-    .catch(reason => {
-      console.log(reason);
-    });
+  });
 };

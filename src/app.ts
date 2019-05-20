@@ -1,20 +1,19 @@
 import { getAvailableSearchFields, getAllInfo } from './data';
-import { displayAlertContent } from './utils/utilityMethods';
+import { consoleMessages } from './utils/utilityMethods';
 import process from 'process';
 import path from 'path';
 import readlineSync from 'readline-sync';
-import columnify from 'columnify';
 
 const primaryOptions = ['Search Zendesk', 'View a list of searchable fields'];
 const searchOptions = ['Users', 'Tickets', 'Organizations'];
 
 const showInitialSearch = () => {
-  console.log('\nSelect search options:');
-  const index = readlineSync.keyInSelect(primaryOptions, 'Please select your option', {
+  consoleMessages.titleMessage();
+  const index = readlineSync.keyInSelect(primaryOptions, 'Please select your option number', {
     cancel: 'Quit',
   });
   index === undefined && (invalidOperation(), showInitialSearch());
-  index >= 0 ? console.log('\nYou have selected to ' + primaryOptions[index]) : quitApplication();
+  index >= 0 ? consoleMessages.optionSelectedMessage(primaryOptions[index]) : quitApplication();
 
   switch (index) {
     case 0:
@@ -29,18 +28,18 @@ const showInitialSearch = () => {
 };
 
 const searchZendesk = async () => {
-  let searchableFields: any = [];
+  let searchableFields: string[] = [];
   let searchValue = '';
 
-  console.log('\nPlease select on which the search should be based on:');
+  consoleMessages.subtitleMessage();
   const index = readlineSync.keyInSelect(searchOptions, 'Please select your option', {
     cancel: 'Go Back',
   });
-  index >= 0 ? console.log('\nYou have selected ' + searchOptions[index]) : showInitialSearch();
-  const searchTerm = readlineSync.question('Please enter the search term: ');
+  index >= 0 ? consoleMessages.optionSelectedMessage(searchOptions[index]) : showInitialSearch();
+  const searchTerm = readlineSync.question('\nPlease enter the search term: ');
   await getAvailableSearchFields(
     path.join(__dirname, '../asset/json/' + searchOptions[index].toLowerCase() + '.json')
-  ).then(async (result: any) => {
+  ).then(async (result: {}) => {
     Object.keys(result).includes(searchTerm.trim())
       ? ((searchValue = readlineSync.question(
           'Please enter the search value (if its a collection of item, just enter one value): '
@@ -53,32 +52,30 @@ const searchZendesk = async () => {
           .then((result: any) => {
             result && result.length > 0
               ? result.map((item: any) => {
-                  console.log(
-                    '\n' + columnify(item, { columns: ['Terms', 'Values'], columnSplitter: ' | ' })
-                  );
+                  consoleMessages.alignMessageContent(item, ['Terms', 'Values']);
                 })
-              : displayAlertContent('\n No results found');
+              : consoleMessages.alertMessage('\n No results found');
           })
           .then(() => goToHome(searchZendesk)))
-      : (displayAlertContent('\n The value entered is not valid search field'), searchZendesk());
+      : (consoleMessages.alertMessage('\n The value entered is not valid search field'),
+        searchZendesk());
   });
 };
 
 const viewSearchField = async () => {
   let searchableFields: any = [];
-  const promises = searchOptions.map(item =>
-    getAvailableSearchFields(
+  for (const item of searchOptions) {
+    await getAvailableSearchFields(
       path.join(__dirname, '../asset/json/' + item.toLowerCase() + '.json')
     ).then((result: any) => {
-      console.log('\n' + columnify(result, { columns: ['Search ' + item + ' with '] }));
-    })
-  );
-  await Promise.all(promises);
+      consoleMessages.alignMessageContent(result, ['Search ' + item + ' with ']);
+    });
+  }
   goToHome(quitApplication);
 };
 
 const quitApplication = () => {
-  console.log('\nQuitting Application...');
+  consoleMessages.quitApplicationMessage();
   process.exit();
 };
 
@@ -98,7 +95,7 @@ const goToHome = (defaultFunction: Function) => {
 };
 
 const invalidOperation = () => {
-  displayAlertContent('\nPlease select an appropriate value');
+  consoleMessages.alertMessage('\nPlease select an appropriate value');
 };
 
 showInitialSearch();
