@@ -48,15 +48,14 @@ const searchZendesk = async () => {
           searchTerm,
           searchValue,
           path.join(__dirname, '../asset/json/' + searchOptions[index].toLowerCase() + '.json')
-        )
-          .then((result: any) => {
-            result && result.length > 0
-              ? result.map((item: any) => {
-                  consoleMessages.alignMessageContent(item, ['Terms', 'Values']);
-                })
-              : consoleMessages.alertMessage('\n No results found');
-          })
-          .then(() => goToHome(searchZendesk)))
+        ).then((result: any) => {
+          result && result.length > 0
+            ? result.map((item: any) => {
+                consoleMessages.alignMessageContent(item, ['Terms', 'Values']);
+              })
+            : consoleMessages.alertMessage('\n No results found');
+        }),
+        goToHome(searchZendesk))
       : (consoleMessages.alertMessage('\n The value entered is not valid search field'),
         searchZendesk());
   });
