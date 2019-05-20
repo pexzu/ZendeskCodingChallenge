@@ -3,7 +3,7 @@ import { consoleMessages } from './utilityMethods';
 it('console.log for title', () => {
   console.log = jest.fn();
   consoleMessages.titleMessage();
-  expect(console.log).toHaveBeenCalledWith('\nWelcome to Zendesk search:');
+  expect(console.log).toHaveBeenCalledWith('\x1b[36m%s\x1b[0m', '\nWelcome to Zendesk search:');
 });
 
 it('console.log subtitle', () => {

@@ -36,4 +36,12 @@ link: https://github.com/timoxley/columnify
 
 ### How to run the application:
 
-Inside the right directory in terminal, 'yarn' then 'yarn run start'
+Inside the right directory in terminal, 'yarn' then 'yarn run start'.
+
+### Testing
+
+Testing is done using jest, just 'yarn test' to run the test.
+
+### Assumptions
+
+All the object structure in JSON are assumed to be identical, and the search terms are derived from the one object structure.

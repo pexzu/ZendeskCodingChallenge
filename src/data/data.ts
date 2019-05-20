@@ -11,7 +11,7 @@ const getAssembler = async (path: string) => {
 
 export const getAvailableSearchFields = async (path: string) => {
   const asm = await getAssembler(path);
-  let value: {} = {};
+  let value: string[] = [];
   return new Promise((resolve, reject) => {
     asm.on('done', (asm: any) => {
       const value: Array<string> = asm.current[0];

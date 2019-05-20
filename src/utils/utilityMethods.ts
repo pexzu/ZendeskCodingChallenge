@@ -2,7 +2,7 @@ import columnify from 'columnify';
 
 export const consoleMessages = {
   titleMessage: () => {
-    console.log(`\nWelcome to Zendesk search:`);
+    console.log('\x1b[36m%s\x1b[0m', '\nWelcome to Zendesk search:');
   },
 
   subtitleMessage: () => {

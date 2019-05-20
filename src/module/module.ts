@@ -31,7 +31,6 @@ export const showInitialSearch = () => {
 };
 
 const searchZendesk = async () => {
-  let searchableFields: string[] = [];
   let searchValue = '';
 
   consoleMessages.subtitleMessage();
@@ -42,35 +41,36 @@ const searchZendesk = async () => {
 
   index >= 0 ? consoleMessages.optionSelectedMessage(searchOptions[index]) : showInitialSearch();
 
+  const availableSearchTerms = await getAvailableSearchFields(
+    path.join(__dirname, '../../asset/json/' + searchOptions[index].toLowerCase() + '.json')
+  );
+
+  consoleMessages.alignMessageContent(availableSearchTerms, [
+    `AVAILABLE SEARCH TERMS FOR ` + searchOptions[index].toUpperCase(),
+  ]);
   const searchTerm = readlineSync.question('\nPlease enter the search term: ');
 
-  await getAvailableSearchFields(
-    path.join(__dirname, '../../asset/json/' + searchOptions[index].toLowerCase() + '.json')
-  ).then(async (result: {}) => {
-    Object.keys(result).includes(searchTerm.trim())
-      ? ((searchValue = readlineSync.question(
-          'Please enter the search value (if its a collection of item, just enter one value): '
-        )),
-        await getAllInfo(
-          searchTerm,
-          searchValue,
-          path.join(__dirname, '../../asset/json/' + searchOptions[index].toLowerCase() + '.json')
-        ).then((result: any) => {
-          result && result.length > 0
-            ? result.map((item: any) => {
-                consoleMessages.alignMessageContent(item, ['Terms', 'Values']);
-              })
-            : consoleMessages.alertMessage('\n No results found');
-        }),
-        goToHome(searchZendesk))
-      : (consoleMessages.alertMessage('\nThe value entered is not valid search field'),
-        searchZendesk());
-  });
+  Object.keys(availableSearchTerms).includes(searchTerm.trim())
+    ? ((searchValue = readlineSync.question(
+        'Please enter the search value (if its a collection of item, just enter one value): '
+      )),
+      await getAllInfo(
+        searchTerm,
+        searchValue,
+        path.join(__dirname, '../../asset/json/' + searchOptions[index].toLowerCase() + '.json')
+      ).then((result: any) => {
+        result && result.length > 0
+          ? result.map((item: any) => {
+              consoleMessages.alignMessageContent(item, ['Terms', 'Values']);
+            })
+          : consoleMessages.alertMessage('\n No results found');
+      }),
+      goToHome(searchZendesk))
+    : (consoleMessages.alertMessage('\nThe value entered is not valid search field'),
+      searchZendesk());
 };
 
 const viewSearchField = async () => {
-  let searchableFields: any = [];
-
   for (const item of searchOptions) {
     await getAvailableSearchFields(
       path.join(__dirname, '../../asset/json/' + item.toLowerCase() + '.json')
