@@ -7,12 +7,15 @@ import readlineSync from 'readline-sync';
 const primaryOptions = ['Search Zendesk', 'View a list of searchable fields'];
 const searchOptions = ['Users', 'Tickets', 'Organizations'];
 
-const showInitialSearch = () => {
+export const showInitialSearch = () => {
   consoleMessages.titleMessage();
+
   const index = readlineSync.keyInSelect(primaryOptions, 'Please select your option number', {
     cancel: 'Quit',
   });
+
   index === undefined && (invalidOperation(), showInitialSearch());
+
   index >= 0 ? consoleMessages.optionSelectedMessage(primaryOptions[index]) : quitApplication();
 
   switch (index) {
@@ -32,11 +35,15 @@ const searchZendesk = async () => {
   let searchValue = '';
 
   consoleMessages.subtitleMessage();
+
   const index = readlineSync.keyInSelect(searchOptions, 'Please select your option', {
     cancel: 'Go Back',
   });
+
   index >= 0 ? consoleMessages.optionSelectedMessage(searchOptions[index]) : showInitialSearch();
+
   const searchTerm = readlineSync.question('\nPlease enter the search term: ');
+
   await getAvailableSearchFields(
     path.join(__dirname, '../asset/json/' + searchOptions[index].toLowerCase() + '.json')
   ).then(async (result: {}) => {
@@ -63,6 +70,7 @@ const searchZendesk = async () => {
 
 const viewSearchField = async () => {
   let searchableFields: any = [];
+
   for (const item of searchOptions) {
     await getAvailableSearchFields(
       path.join(__dirname, '../asset/json/' + item.toLowerCase() + '.json')
@@ -70,6 +78,7 @@ const viewSearchField = async () => {
       consoleMessages.alignMessageContent(result, ['Search ' + item + ' with ']);
     });
   }
+
   goToHome(quitApplication);
 };
 
@@ -83,6 +92,7 @@ const goToHome = (defaultFunction: Function) => {
     .question('\nDo you wanna go home (y/n): ')
     .toLowerCase()
     .trim();
+
   if (isGoingHome === 'y') {
     showInitialSearch();
   } else if (isGoingHome === 'n') {
@@ -93,8 +103,6 @@ const goToHome = (defaultFunction: Function) => {
   }
 };
 
-const invalidOperation = () => {
+export const invalidOperation = () => {
   consoleMessages.alertMessage('\nPlease select an appropriate value');
 };
-
-showInitialSearch();
